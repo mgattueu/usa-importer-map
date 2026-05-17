@@ -138,10 +138,11 @@ geo_stats = Counter()
 
 random.seed(42)
 
-def jitter(lat, lng, used, radius=0.18):
-    for _ in range(20):
+def jitter(lat, lng, used, radius=0.03):
+    # Small radius (~2 miles) — just enough to separate exact-same-zip markers
+    for _ in range(30):
         angle = random.uniform(0, 2*math.pi)
-        r = random.uniform(0.05, radius)
+        r = random.uniform(0.005, radius)
         p = (round(lat + r*math.sin(angle), 5), round(lng + r*math.cos(angle), 5))
         if p not in used:
             used.add(p)
@@ -151,12 +152,28 @@ def jitter(lat, lng, used, radius=0.18):
 
 used_coords = set()
 
+# Normalise name for dedup: lowercase, strip punctuation/spaces
+import unicodedata
+def norm_name(n):
+    n = n.lower().strip()
+    n = re.sub(r'[^a-z0-9 ]', '', n)
+    n = re.sub(r'\s+', ' ', n)
+    return n
+
+seen_names = set()
+
 for row in rows[1:]:
     vol    = row[0] or 0
     name   = str(row[2] or '').strip()
     notify = str(row[4] or '').strip()
     addr2  = str(row[5] or '').strip()
     if not name: continue
+
+    # Skip near-duplicate names (same company, different spelling/typo)
+    nn = norm_name(name)
+    if nn in seen_names:
+        continue
+    seen_names.add(nn)
 
     cat = categorize(name, vol)
 
