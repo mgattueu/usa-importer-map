@@ -1,0 +1,12 @@
+# Input data — don't commit raw ImportYeti files
+ImportYeti-*.xlsx
+ImportYeti-*.csv
+
+# Python cache
+__pycache__/
+*.pyc
+.pgeocode_cache/
+
+# OS
+.DS_Store
+Thumbs.db
