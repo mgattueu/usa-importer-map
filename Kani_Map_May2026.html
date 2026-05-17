@@ -140,30 +140,41 @@ const map=L.map('map',{center:[38,-96],zoom:4});
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'&copy; OpenStreetMap &copy; CartoDB',maxZoom:19}).addTo(map);
 
 // ── Icons ──────────────────────────────────────────────────────────
+// Volume → radius: small range 5–38px so differences are obvious at a glance
+function volToRadius(vol){
+  return Math.max(5, Math.min(5 + Math.sqrt(vol) * 2.8, 38));
+}
+
+function makeCircleSvg(r, fill, opacity, strokeDash, vol, textColor){
+  const s=r*2+6;
+  const fs=Math.max(7, Math.min(13, r*0.75));
+  const lbl=vol>0?`<text x="${s/2}" y="${s/2+fs*.38}" text-anchor="middle" font-size="${fs}" font-weight="700" fill="${textColor||'white'}" font-family="Segoe UI,sans-serif">${vol}</text>`:'';
+  const dash=strokeDash?`stroke-dasharray="${strokeDash}"`:'';
+  return [`<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}"><circle cx="${s/2}" cy="${s/2}" r="${r}" fill="${fill}" fill-opacity="${opacity}" stroke="white" stroke-width="1.5" ${dash}/>${lbl}</svg>`, s];
+}
+
 function makeClusterIcon(cat,vol,geo){
   if(cat==='LOGISTICS')
     return L.divIcon({html:'<div style="font-size:15px;line-height:1;filter:grayscale(1) opacity(.7)">🚚</div>',className:'',iconSize:[20,18],iconAnchor:[10,9]});
-  // State-level geocoded pins are violet
   if(geo==='state') return makeStateIcon(vol);
-  const c=cat==='COMPETITOR'?compColor(vol):(COLORS[cat]||'#888');
-  const r=cat==='SELF'?13:Math.max(6,Math.min(6+Math.sqrt(vol)*1.8,22));
-  const s=r*2+4;
-  const fs=Math.max(7,Math.min(10,r));
-  const lbl=vol>0?`<text x="${s/2}" y="${s/2+fs*.38}" text-anchor="middle" font-size="${fs}" font-weight="700" fill="white" font-family="Segoe UI,sans-serif">${vol}</text>`:'';
-  return L.divIcon({html:`<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}"><circle cx="${s/2}" cy="${s/2}" r="${r}" fill="${c}" fill-opacity=".9" stroke="white" stroke-width="1.5"/>${lbl}</svg>`,className:'',iconSize:[s,s],iconAnchor:[s/2,s/2]});
+  const c = cat==='SELF'?'#3b82f6' : cat==='COMPETITOR'?compColor(vol):'#22c55e';
+  const r = cat==='SELF' ? 14 : volToRadius(vol);
+  const [svg, s] = makeCircleSvg(r, c, 0.92, null, cat==='SELF'?0:vol);
+  return L.divIcon({html:svg, className:'', iconSize:[s,s], iconAnchor:[s/2,s/2]});
 }
 
 function makeStateIcon(vol){
-  const r=Math.max(6,Math.min(6+Math.sqrt(vol)*1.8,22));
-  const s=r*2+4; const fs=Math.max(7,Math.min(10,r));
-  const lbl=vol>0?`<text x="${s/2}" y="${s/2+fs*.38}" text-anchor="middle" font-size="${fs}" font-weight="700" fill="white" font-family="Segoe UI,sans-serif">${vol}</text>`:'';
-  return L.divIcon({html:`<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}"><circle cx="${s/2}" cy="${s/2}" r="${r}" fill="#7c3aed" fill-opacity=".85" stroke="white" stroke-width="1.5" stroke-dasharray="4,2"/>${lbl}</svg>`,className:'',iconSize:[s,s],iconAnchor:[s/2,s/2]});
+  const r=volToRadius(vol);
+  const [svg,s]=makeCircleSvg(r,'#7c3aed',0.85,'4,2',vol);
+  return L.divIcon({html:svg,className:'',iconSize:[s,s],iconAnchor:[s/2,s/2]});
 }
 
 function makeSecondaryIcon(cat,vol){
   const c=cat==='COMPETITOR'?compColor(vol):(COLORS[cat]||'#888');
-  const r=5; const s=r*2+4;
-  return L.divIcon({html:`<svg xmlns="http://www.w3.org/2000/svg" width="${s}" height="${s}"><circle cx="${s/2}" cy="${s/2}" r="${r}" fill="${c}" fill-opacity=".55" stroke="white" stroke-width="1.5" stroke-dasharray="3,2"/></svg>`,className:'',iconSize:[s,s],iconAnchor:[s/2,s/2]});
+  // Secondary pins: same color, smaller (half radius), dashed
+  const r=Math.max(4, volToRadius(vol)*0.55);
+  const [svg,s]=makeCircleSvg(r,c,0.55,'3,2',0);
+  return L.divIcon({html:svg,className:'',iconSize:[s,s],iconAnchor:[s/2,s/2]});
 }
 
 function makeFocusIcon(idx){
