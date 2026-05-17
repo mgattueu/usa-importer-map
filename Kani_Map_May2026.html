@@ -9,80 +9,75 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <style>
+:root{
+  --bg:#0f172a;--panel:#1e293b;--bd:#334155;--bd2:#475569;
+  --tx:#e2e8f0;--tx2:#f1f5f9;--txd:#cbd5e1;--txf:#64748b;--txm:#94a3b8;
+  --hover:rgba(255,255,255,.07);--lbg:rgba(15,23,42,.85);
+}
+[data-theme=light]{
+  --bg:#f1f5f9;--panel:#ffffff;--bd:#e2e8f0;--bd2:#cbd5e1;
+  --tx:#1e293b;--tx2:#0f172a;--txd:#475569;--txf:#94a3b8;--txm:#64748b;
+  --hover:rgba(0,0,0,.05);--lbg:rgba(248,250,252,.93);
+}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#e2e8f0;height:100vh;display:flex;flex-direction:column}
-#hdr{padding:10px 16px;background:#1e293b;display:flex;align-items:center;gap:12px;border-bottom:2px solid #334155;flex-shrink:0;flex-wrap:wrap}
-#hdr b{font-size:1rem;color:#f1f5f9}
-#hdr small{font-size:.71rem;color:#64748b}
+body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--tx);height:100vh;display:flex;flex-direction:column;transition:background .2s,color .2s}
+#hdr{padding:10px 16px;background:var(--panel);display:flex;align-items:center;gap:12px;border-bottom:2px solid var(--bd);flex-shrink:0;flex-wrap:wrap;transition:background .2s}
+#hdr b{font-size:1rem;color:var(--tx2)}
+#hdr small{font-size:.71rem;color:var(--txf)}
 .leg{display:flex;gap:12px;margin-left:auto;flex-wrap:wrap;align-items:center}
-.li{display:flex;align-items:center;gap:5px;font-size:.74rem;color:#cbd5e1}
+.li{display:flex;align-items:center;gap:5px;font-size:.74rem;color:var(--txd)}
 .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .d-comp{background:#ef4444}.d-buy{background:#22c55e}
 .d-inv{background:#f59e0b}.d-log{background:#94a3b8}.d-self{background:#3b82f6}
 
-#bar{padding:6px 14px;background:#1e293b;display:flex;gap:7px;flex-wrap:wrap;align-items:center;border-bottom:1px solid #334155;flex-shrink:0}
+#bar{padding:6px 14px;background:var(--panel);display:flex;gap:7px;flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--bd);flex-shrink:0;transition:background .2s}
 .btn{padding:3px 11px;border-radius:13px;border:none;cursor:pointer;font-size:.74rem;font-weight:600;transition:opacity .15s}
 .btn.off{opacity:.28}
 .b-all{background:#475569;color:#fff}.b-comp{background:#dc2626;color:#fff}
 .b-cust{background:#22c55e;color:#fff}.b-log{background:#6b7280;color:#fff}
-.b-self{background:#3b82f6;color:#fff}.b-lbl{background:#0f172a;color:#94a3b8;border:1px solid #334155}
-#search{margin-left:auto;padding:4px 12px;border-radius:13px;border:1px solid #475569;background:#0f172a;color:#e2e8f0;font-size:.74rem;width:175px}
+.b-self{background:#3b82f6;color:#fff}
+.b-lbl{background:var(--bg);color:var(--txm);border:1px solid var(--bd)}
+.b-theme{background:var(--bg);color:var(--txm);border:1px solid var(--bd);font-size:.82rem;padding:2px 8px;line-height:1.6}
+#search{margin-left:auto;padding:4px 12px;border-radius:13px;border:1px solid var(--bd2);background:var(--bg);color:var(--tx);font-size:.74rem;width:175px;transition:background .2s,color .2s}
 
-/* Focus mode banner */
 #focus-bar{display:none;padding:7px 16px;background:#7c3aed;color:#fff;font-size:.82rem;font-weight:600;align-items:center;gap:12px;flex-shrink:0}
 #focus-bar button{padding:3px 12px;border-radius:12px;border:none;background:rgba(255,255,255,.25);color:#fff;cursor:pointer;font-weight:700;font-size:.76rem}
 #focus-bar button:hover{background:rgba(255,255,255,.4)}
 
 #map{flex:1;position:relative}
 
-/* Focus location markers */
-.loc-pin{
-  display:flex;align-items:center;justify-content:center;
-  width:32px;height:32px;border-radius:50%;
-  font-size:.72rem;font-weight:700;color:#fff;
-  border:2.5px solid rgba(255,255,255,.7);
-  box-shadow:0 2px 10px rgba(0,0,0,.6);
-}
+.loc-pin{display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;font-size:.72rem;font-weight:700;color:#fff;border:2.5px solid rgba(255,255,255,.7);box-shadow:0 2px 10px rgba(0,0,0,.6)}
 .loc-primary{background:#3b82f6}
 .loc-secondary{background:#7c3aed}
 
-/* Side panel */
-#panel{
-  position:absolute;top:10px;left:10px;z-index:1000;
-  background:#1e293b;border:1px solid #334155;border-radius:10px;
-  width:290px;max-height:calc(100vh - 130px);
-  overflow-y:auto;box-shadow:0 6px 28px rgba(0,0,0,.7);
-  display:none;
-}
+#panel{position:absolute;top:10px;left:10px;z-index:1000;background:var(--panel);border:1px solid var(--bd);border-radius:10px;width:290px;max-height:calc(100vh - 130px);overflow-y:auto;box-shadow:0 6px 28px rgba(0,0,0,.4);display:none;transition:background .2s}
 #panel-inner{padding:14px}
-.pn{font-weight:700;font-size:.95rem;margin-bottom:5px;line-height:1.3}
+.pn{font-weight:700;font-size:.95rem;margin-bottom:5px;line-height:1.3;color:var(--tx2)}
 .pb{display:inline-block;padding:2px 9px;border-radius:10px;font-size:.69rem;font-weight:700;margin-bottom:7px}
 .bc{background:#7f1d1d;color:#fca5a5}.bb{background:#14532d;color:#86efac}
 .bl{background:#334155;color:#cbd5e1}.bs{background:#1e3a8a;color:#93c5fd}
-.pv{font-size:.8rem;font-weight:600;color:#e2e8f0;margin-bottom:10px}
-.addr-label{font-size:.64rem;text-transform:uppercase;letter-spacing:.5px;color:#64748b;margin-bottom:5px}
+.pv{font-size:.8rem;font-weight:600;color:var(--tx);margin-bottom:10px}
+.addr-label{font-size:.64rem;text-transform:uppercase;letter-spacing:.5px;color:var(--txf);margin-bottom:5px}
 .addr-item{display:flex;align-items:flex-start;gap:8px;padding:6px 8px;border-radius:6px;margin-bottom:5px;cursor:pointer;transition:background .15s;border:1px solid transparent}
-.addr-item:hover,.addr-item.active{background:rgba(255,255,255,.07);border-color:#334155}
+.addr-item:hover,.addr-item.active{background:var(--hover);border-color:var(--bd)}
 .addr-num{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.66rem;font-weight:700;flex-shrink:0;margin-top:1px}
 .addr-primary-num{background:#3b82f6;color:#fff}
 .addr-secondary-num{background:#7c3aed;color:#fff}
-.addr-text{font-size:.76rem;color:#cbd5e1;line-height:1.38}
-.addr-geo{font-size:.63rem;color:#475569;margin-top:2px}
+.addr-text{font-size:.76rem;color:var(--txd);line-height:1.38}
+.addr-geo{font-size:.63rem;color:var(--txf);margin-top:2px}
 .addr-warn{color:#f59e0b}
 
-/* Permanent label on every marker */
-.plabel{background:rgba(15,23,42,.82)!important;border:1px solid #334155!important;color:#e2e8f0!important;font-size:.7rem!important;padding:2px 6px!important;border-radius:4px!important;box-shadow:0 1px 4px rgba(0,0,0,.5)!important;white-space:nowrap!important;pointer-events:none!important}
+.plabel{background:var(--lbg)!important;border:1px solid var(--bd)!important;color:var(--tx)!important;font-size:.7rem!important;padding:2px 6px!important;border-radius:4px!important;box-shadow:0 1px 4px rgba(0,0,0,.4)!important;white-space:nowrap!important;pointer-events:none!important}
 .plabel::before{display:none!important}
 .mlabel{display:flex;gap:4px;align-items:center}
-.mteu{color:#94a3b8;font-size:.65rem}
-/* Focus address labels */
-.ftip{background:#1e293b!important;border:1px solid #7c3aed!important;color:#e2e8f0!important;font-size:.73rem!important;padding:3px 8px!important;border-radius:4px!important;box-shadow:0 2px 6px rgba(0,0,0,.5)!important;white-space:normal!important;max-width:220px}
+.mteu{color:var(--txm);font-size:.65rem}
+.ftip{background:var(--panel)!important;border:1px solid #7c3aed!important;color:var(--tx)!important;font-size:.73rem!important;padding:3px 8px!important;border-radius:4px!important;box-shadow:0 2px 6px rgba(0,0,0,.4)!important;white-space:normal!important;max-width:220px}
 .ftip::before{border-right-color:#7c3aed!important}
 
-#stats{position:absolute;bottom:20px;right:10px;z-index:999;background:#1e293b;border:1px solid #334155;border-radius:8px;padding:8px 12px;font-size:.72rem;min-width:150px}
-#stats h4{color:#64748b;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;font-size:.67rem}
+#stats{position:absolute;bottom:20px;right:10px;z-index:999;background:var(--panel);border:1px solid var(--bd);border-radius:8px;padding:8px 12px;font-size:.72rem;min-width:150px;transition:background .2s}
+#stats h4{color:var(--txf);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;font-size:.67rem}
 .sr{display:flex;justify-content:space-between;gap:10px;margin:2px 0}
-.sl{color:#94a3b8}.sv{font-weight:700;color:#f1f5f9}
+.sl{color:var(--txm)}.sv{font-weight:700;color:var(--tx2)}
 </style>
 </head>
 <body>
@@ -103,6 +98,7 @@ body{font-family:'Segoe UI',sans-serif;background:#0f172a;color:#e2e8f0;height:1
   <button class="btn b-log"  id="btn-LOGISTICS"  onclick="tog('LOGISTICS')">Logistics</button>
   <button class="btn b-self" id="btn-SELF"        onclick="tog('SELF')">Kani</button>
   <button class="btn b-lbl" id="btn-labels" onclick="toggleLabels()">Labels ON</button>
+  <button class="btn b-theme" id="btn-theme" onclick="toggleTheme()" title="Toggle light/dark">🌙</button>
   <input id="search" type="text" placeholder="Search company…" oninput="doSearch(this.value)">
 </div>
 <div id="focus-bar">
@@ -137,7 +133,10 @@ const LABELS={COMPETITOR:'Competitor',CUSTOMER:'Potential Customer (<10 TEU)',LO
 const BADGE ={COMPETITOR:'bc',CUSTOMER:'bb',LOGISTICS:'bl',SELF:'bs'};
 
 const map=L.map('map',{center:[38,-96],zoom:4});
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'&copy; OpenStreetMap &copy; CartoDB',maxZoom:19}).addTo(map);
+const darkTile=L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'&copy; OpenStreetMap &copy; CartoDB',maxZoom:19});
+const lightTile=L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'&copy; OpenStreetMap &copy; CartoDB',maxZoom:19});
+darkTile.addTo(map);
+let isDark=true;
 
 // ── Icons ──────────────────────────────────────────────────────────
 // Volume → radius: small range 5–38px so differences are obvious at a glance
@@ -361,6 +360,15 @@ function toggleLabels(){
   style.id='label-style';
   style.textContent=labelsOn?'':'.plabel{display:none!important}';
   document.head.appendChild(style);
+}
+
+// ── Theme toggle ───────────────────────────────────────────────────
+function toggleTheme(){
+  isDark=!isDark;
+  document.documentElement.setAttribute('data-theme', isDark?'dark':'light');
+  document.getElementById('btn-theme').textContent=isDark?'🌙':'☀️';
+  if(isDark){ lightTile.remove(); darkTile.addTo(map); }
+  else { darkTile.remove(); lightTile.addTo(map); }
 }
 
 // Pressing Escape also exits focus
