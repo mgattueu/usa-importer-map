@@ -124,7 +124,7 @@ LOGISTICS_KW = [
 def categorize(name, vol):
     """Everyone importing is a competitor. < 10 TEU = potential customer."""
     n = name.lower()
-    if 'kani international' in n or 'slab planet' in n: return 'SELF'
+    if 'monument planet' in n: return 'SELF'
     for k in LOGISTICS_KW:
         if k in n: return 'LOGISTICS'
     # volume-based split: small importers are potential customers
@@ -232,7 +232,7 @@ html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Kani – Granite Monument Import Map</title>
+<title>Monument Planet – US Granite Importer Map</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
@@ -312,12 +312,12 @@ body{{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--tx);hei
 </head>
 <body>
 <div id="hdr">
-  <div><b>Kani – Granite Monument Import Map</b><br><small>ImportYeti May-16-2026 · {len(markers)} companies · click any pin to focus</small></div>
+  <div><b>Monument Planet – US Granite Importer Map</b><br><small>ImportYeti May-16-2026 · {len(markers)} companies · click any pin to focus</small></div>
   <div class="leg">
     <div class="li"><div class="dot" style="background:#dc2626"></div>Competitor (≥10 TEU)</div>
     <div class="li"><div class="dot" style="background:#22c55e"></div>Potential Customer (&lt;10 TEU)</div>
     <div class="li"><div class="dot" style="background:#6b7280"></div>🚚 Logistics</div>
-    <div class="li"><div class="dot" style="background:#3b82f6"></div>Kani</div>
+    <div class="li"><div class="dot" style="background:#3b82f6"></div>Monument Planet</div>
     <div class="li" style="font-size:.68rem;color:#64748b">darker red = higher volume</div>
   </div>
 </div>
@@ -326,7 +326,7 @@ body{{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--tx);hei
   <button class="btn b-comp" id="btn-COMPETITOR" onclick="tog('COMPETITOR')">Competitors</button>
   <button class="btn b-cust" id="btn-CUSTOMER"   onclick="tog('CUSTOMER')">Potential Customers</button>
   <button class="btn b-log"  id="btn-LOGISTICS"  onclick="tog('LOGISTICS')">Logistics</button>
-  <button class="btn b-self" id="btn-SELF"        onclick="tog('SELF')">Kani</button>
+  <button class="btn b-self" id="btn-SELF"        onclick="tog('SELF')">Monument Planet</button>
   <button class="btn b-lbl" id="btn-labels" onclick="toggleLabels()">Labels ON</button>
   <button class="btn b-theme" id="btn-theme" onclick="toggleTheme()" title="Toggle light/dark">🌙</button>
   <input id="search" type="text" placeholder="Search company…" oninput="doSearch(this.value)">
@@ -359,7 +359,7 @@ function compColor(vol){{
   return '#f97316';                // orange
 }}
 const COLORS={{COMPETITOR:'#dc2626',CUSTOMER:'#22c55e',LOGISTICS:'#6b7280',SELF:'#3b82f6'}};
-const LABELS={{COMPETITOR:'Competitor',CUSTOMER:'Potential Customer (<10 TEU)',LOGISTICS:'Logistics / Freight',SELF:'Kani / Slab Planet'}};
+const LABELS={{COMPETITOR:'Competitor',CUSTOMER:'Potential Customer (<10 TEU)',LOGISTICS:'Logistics / Freight',SELF:'Monument Planet'}};
 const BADGE ={{COMPETITOR:'bc',CUSTOMER:'bb',LOGISTICS:'bl',SELF:'bs'}};
 
 const map=L.map('map',{{center:[38,-96],zoom:4}});
@@ -607,7 +607,7 @@ document.addEventListener('keydown',e=>{{if(e.key==='Escape'&&inFocus)exitFocus(
 </body>
 </html>"""
 
-out = r'C:\Users\mgatt\Downloads\Kani_Map_May2026.html'
+out = r'C:\Users\mgatt\Downloads\MonumentPlanet_Map_May2026.html'
 with open(out, 'w', encoding='utf-8') as f:
     f.write(html)
 print(f"\nSaved: {out}")
